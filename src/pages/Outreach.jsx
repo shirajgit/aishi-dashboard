@@ -1,8 +1,59 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useDashboard, addItem, updateItem, removeItem } from '../store/db';
 import { fromNow } from '../lib/format';
 import { Badge, Empty } from '../components/UI';
 import { IconSend, IconMail, IconChat, IconTrash } from '../components/Icons';
+
+// Custom recipient picker so each row can show the lead's stage badge (a native
+// <select> can only render plain text). Searchable for long lists.
+function LeadPicker({ leads, value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState('');
+  const ref = useRef(null);
+  const selected = leads.find((l) => l.id === value);
+
+  useEffect(() => {
+    const onDoc = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, []);
+
+  const term = q.toLowerCase();
+  const filtered = leads.filter((l) => !term || l.name.toLowerCase().includes(term) || (l.company || '').toLowerCase().includes(term));
+
+  const choose = (id) => { onChange(id); setOpen(false); setQ(''); };
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button type="button" className="input flex between" style={{ cursor: 'pointer', gap: 10 }} onClick={() => setOpen((o) => !o)}>
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {selected ? `${selected.name} · ${selected.company}` : <span className="dim">— manual entry —</span>}
+        </span>
+        {selected ? <Badge>{selected.status}</Badge> : <span className="dim">▾</span>}
+      </button>
+      {open && (
+        <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 40, background: 'var(--panel)', border: '1px solid var(--border-strong)', borderRadius: 12, boxShadow: 'var(--shadow)', maxHeight: 320, overflowY: 'auto' }}>
+          <div style={{ padding: 8, position: 'sticky', top: 0, background: 'var(--panel)', borderBottom: '1px solid var(--border)' }}>
+            <input className="input" autoFocus placeholder="Search leads…" value={q} onChange={(e) => setQ(e.target.value)} />
+          </div>
+          <div style={{ padding: 6 }}>
+            <div className="lead-opt" onClick={() => choose('')}><span className="dim">— manual entry —</span></div>
+            {filtered.map((l) => (
+              <div key={l.id} className="lead-opt flex between" style={{ gap: 10 }} onClick={() => choose(l.id)}>
+                <span style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.name}</div>
+                  <div className="muted" style={{ fontSize: 11.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.company}</div>
+                </span>
+                <Badge>{l.status}</Badge>
+              </div>
+            ))}
+            {filtered.length === 0 && <div className="dim" style={{ padding: 10, fontSize: 12.5 }}>No matches</div>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // Your (sender) details, injected via {{me}}, {{myphone}}, etc.
 const SENDER = { name: 'Shiraj', phone: '+91 8105369922', email: 'hello.aishitech@gmail.com', site: 'aishitech.vercel.app' };
@@ -136,18 +187,9 @@ export default function Outreach() {
 
           <div className="field">
             <label>Recipient lead</label>
-            <select className="input" value={leadId} onChange={(e) => pickLead(e.target.value)}>
-              <option value="">— manual entry —</option>
-              {state.leads.map((l) => <option key={l.id} value={l.id}>{l.name} · {l.company}</option>)}
-            </select>
-            {lead && (
-              <div className="flex between" style={{ marginTop: 8, padding: '8px 12px', background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 10 }}>
-                <span className="muted" style={{ fontSize: 12.5 }}>{lead.company}</span>
-                <span className="flex gap-8">
-                  {lead.service && <span className="tag">{lead.service}</span>}
-                  <Badge>{lead.status}</Badge>
-                </span>
-              </div>
+            <LeadPicker leads={state.leads} value={leadId} onChange={pickLead} />
+            {lead && lead.service && (
+              <div className="dim" style={{ fontSize: 11.5, marginTop: 6 }}>Service: {lead.service} · {lead.phone || lead.email}</div>
             )}
           </div>
 
