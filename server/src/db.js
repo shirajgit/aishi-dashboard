@@ -15,7 +15,7 @@ export const models = {
 
 // Whitelisted writable fields per collection (id included for create).
 export const FIELDS = {
-  leads: ['id', 'name', 'company', 'email', 'phone', 'source', 'status', 'value', 'owner', 'createdAt', 'lastContact'],
+  leads: ['id', 'name', 'company', 'email', 'phone', 'source', 'status', 'value', 'service', 'createdAt', 'lastContact'],
   customers: ['id', 'name', 'company', 'email', 'plan', 'mrr', 'status', 'since', 'health'],
   subscriptions: ['id', 'customerId', 'plan', 'amount', 'interval', 'status', 'startedAt', 'renewsAt'],
   templates: ['id', 'name', 'channel', 'subject', 'body'],

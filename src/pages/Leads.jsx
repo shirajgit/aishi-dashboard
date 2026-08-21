@@ -6,9 +6,9 @@ import { money, compactMoney, dateShort, fromNow } from '../lib/format';
 import { Badge, Avatar, Modal, Drawer, Empty } from '../components/UI';
 import { IconPlus, IconEdit, IconTrash, IconSend, IconPhone, IconMail } from '../components/Icons';
 
-const BLANK = { name: '', company: '', email: '', phone: '', source: 'Website', status: 'new', value: 0, owner: 'Shira' };
+const BLANK = { name: '', company: '', email: '', phone: '', source: 'Website', status: 'new', value: 0, service: 'Website' };
 const SOURCES = ['Website', 'Referral', 'Cold email', 'LinkedIn', 'Event', 'Other'];
-const OWNERS = ['Shira', 'Aditi'];
+const SERVICES = ['Website', 'Web App', 'Mobile App', 'E-commerce', 'AI / Automation', 'IoT', 'Digital Marketing', 'Other'];
 
 function LeadForm({ initial, onSave, onClose }) {
   const [form, setForm] = useState(initial);
@@ -42,7 +42,7 @@ function LeadForm({ initial, onSave, onClose }) {
       </div>
       <div className="row">
         <div className="field"><label>Deal value (₹)</label><input className="input mono" type="number" value={form.value} onChange={set('value')} /></div>
-        <div className="field"><label>Owner</label><select className="input" value={form.owner} onChange={set('owner')}>{OWNERS.map((s) => <option key={s}>{s}</option>)}</select></div>
+        <div className="field"><label>Service</label><select className="input" value={form.service} onChange={set('service')}>{SERVICES.map((s) => <option key={s}>{s}</option>)}</select></div>
       </div>
     </Modal>
   );
@@ -95,7 +95,7 @@ function LeadDrawer({ lead, onClose }) {
       <div className="muted" style={{ fontSize: 13, lineHeight: 2 }}>
         <div>Created {fromNow(lead.createdAt)}</div>
         <div>Last contact {lead.lastContact ? fromNow(lead.lastContact) : 'never'}</div>
-        <div>Owned by {lead.owner}</div>
+        <div>Service: {lead.service}</div>
       </div>
     </Drawer>
   );
@@ -142,7 +142,7 @@ export default function Leads() {
         ) : (
           <table className="table">
             <thead>
-              <tr><th>Lead</th><th>Stage</th><th>Source</th><th>Owner</th><th className="right">Value</th><th>Last contact</th><th></th></tr>
+              <tr><th>Lead</th><th>Stage</th><th>Service</th><th>Source</th><th className="right">Value</th><th>Last contact</th><th></th></tr>
             </thead>
             <tbody>
               {filtered.map((l) => (
@@ -154,8 +154,8 @@ export default function Leads() {
                     </div>
                   </td>
                   <td><Badge>{l.status}</Badge></td>
+                  <td>{l.service ? <span className="tag">{l.service}</span> : <span className="dim">—</span>}</td>
                   <td className="muted">{l.source}</td>
-                  <td className="muted">{l.owner}</td>
                   <td className="right mono">{money(l.value)}</td>
                   <td className="muted">{l.lastContact ? fromNow(l.lastContact) : '—'}</td>
                   <td onClick={(e) => e.stopPropagation()}>

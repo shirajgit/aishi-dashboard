@@ -5,14 +5,14 @@ const at = (offsetDays) => new Date(Date.now() + offsetDays * day);
 
 export function buildSeed() {
   const leads = [
-    { id: 'ld_1', name: 'Rahul Mehta', company: 'BrightKart', email: 'rahul@brightkart.in', phone: '+91 98200 11223', source: 'Website', status: 'qualified', value: 180000, owner: 'Shira', createdAt: at(-3), lastContact: at(-1) },
-    { id: 'ld_2', name: 'Sara Powell', company: 'NorthLoop', email: 'sara@northloop.io', phone: '+44 7700 900123', source: 'Referral', status: 'proposal', value: 420000, owner: 'Shira', createdAt: at(-9), lastContact: at(-2) },
-    { id: 'ld_3', name: 'Deepak Nair', company: 'ClinicOne', email: 'deepak@clinicone.health', phone: '+91 90040 55667', source: 'Cold email', status: 'contacted', value: 260000, owner: 'Aditi', createdAt: at(-5), lastContact: at(-4) },
-    { id: 'ld_4', name: 'Mei Chen', company: 'Loomly', email: 'mei@loomly.co', phone: '+65 8123 4567', source: 'LinkedIn', status: 'new', value: 150000, owner: 'Aditi', createdAt: at(-1), lastContact: null },
-    { id: 'ld_5', name: 'Tom Becker', company: 'Rivet HR', email: 'tom@rivethr.com', phone: '+1 415 555 0182', source: 'Website', status: 'won', value: 540000, owner: 'Shira', createdAt: at(-22), lastContact: at(-6) },
-    { id: 'ld_6', name: 'Fatima Ali', company: 'Souk Mart', email: 'fatima@soukmart.ae', phone: '+971 50 123 4567', source: 'Referral', status: 'lost', value: 95000, owner: 'Aditi', createdAt: at(-18), lastContact: at(-11) },
-    { id: 'ld_7', name: 'Jordan Blake', company: 'FleetIQ', email: 'jordan@fleetiq.app', phone: '+1 312 555 0147', source: 'Cold email', status: 'new', value: 320000, owner: 'Shira', createdAt: at(0), lastContact: null },
-    { id: 'ld_8', name: 'Priya Sharma', company: 'EduNest', email: 'priya@edunest.in', phone: '+91 99880 22110', source: 'LinkedIn', status: 'qualified', value: 210000, owner: 'Aditi', createdAt: at(-7), lastContact: at(-3) },
+    { id: 'ld_1', name: 'Rahul Mehta', company: 'BrightKart', email: 'rahul@brightkart.in', phone: '+91 98200 11223', source: 'Website', status: 'qualified', value: 180000, service: 'E-commerce', createdAt: at(-3), lastContact: at(-1) },
+    { id: 'ld_2', name: 'Sara Powell', company: 'NorthLoop', email: 'sara@northloop.io', phone: '+44 7700 900123', source: 'Referral', status: 'proposal', value: 420000, service: 'Web App', createdAt: at(-9), lastContact: at(-2) },
+    { id: 'ld_3', name: 'Deepak Nair', company: 'ClinicOne', email: 'deepak@clinicone.health', phone: '+91 90040 55667', source: 'Cold email', status: 'contacted', value: 260000, service: 'Web App', createdAt: at(-5), lastContact: at(-4) },
+    { id: 'ld_4', name: 'Mei Chen', company: 'Loomly', email: 'mei@loomly.co', phone: '+65 8123 4567', source: 'LinkedIn', status: 'new', value: 150000, service: 'Mobile App', createdAt: at(-1), lastContact: null },
+    { id: 'ld_5', name: 'Tom Becker', company: 'Rivet HR', email: 'tom@rivethr.com', phone: '+1 415 555 0182', source: 'Website', status: 'won', value: 540000, service: 'Web App', createdAt: at(-22), lastContact: at(-6) },
+    { id: 'ld_6', name: 'Fatima Ali', company: 'Souk Mart', email: 'fatima@soukmart.ae', phone: '+971 50 123 4567', source: 'Referral', status: 'lost', value: 95000, service: 'E-commerce', createdAt: at(-18), lastContact: at(-11) },
+    { id: 'ld_7', name: 'Jordan Blake', company: 'FleetIQ', email: 'jordan@fleetiq.app', phone: '+1 312 555 0147', source: 'Cold email', status: 'new', value: 320000, service: 'Mobile App', createdAt: at(0), lastContact: null },
+    { id: 'ld_8', name: 'Priya Sharma', company: 'EduNest', email: 'priya@edunest.in', phone: '+91 99880 22110', source: 'LinkedIn', status: 'qualified', value: 210000, service: 'Website', createdAt: at(-7), lastContact: at(-3) },
   ];
 
   const customers = [
