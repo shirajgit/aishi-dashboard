@@ -140,6 +140,15 @@ export default function Outreach() {
               <option value="">— manual entry —</option>
               {state.leads.map((l) => <option key={l.id} value={l.id}>{l.name} · {l.company}</option>)}
             </select>
+            {lead && (
+              <div className="flex between" style={{ marginTop: 8, padding: '8px 12px', background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 10 }}>
+                <span className="muted" style={{ fontSize: 12.5 }}>{lead.company}</span>
+                <span className="flex gap-8">
+                  {lead.service && <span className="tag">{lead.service}</span>}
+                  <Badge>{lead.status}</Badge>
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="field">
