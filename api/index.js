@@ -1,6 +1,7 @@
 // Vercel serverless API for the Aishi dashboard.
-// Serves the whole /api/* surface from one catch-all function so the live site
-// (https://aishi-dashboard.vercel.app) talks to it on the same origin.
+// A vercel.json rewrite funnels ALL /api/* requests (including nested paths like
+// /api/leads/:id) to this single function, which routes them itself. The path is
+// read from req.url so it works regardless of Vercel's dynamic routing.
 //
 // Set DATABASE_URL in the Vercel project's Environment Variables (use the Neon
 // *pooled* connection string with `&pgbouncer=true&schema=aishi_dashboard`).
@@ -103,15 +104,12 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(204).end();
 
-  // Resolve the path segments after "/api". Prefer Vercel's catch-all param,
-  // but fall back to parsing req.url so this works no matter how it's routed.
-  let parts = req.query && req.query.path ? [].concat(req.query.path) : [];
-  if (parts.length === 0) {
-    const pathname = new URL(req.url, 'http://localhost').pathname;
-    parts = pathname.split('/').filter(Boolean);
-    if (parts[0] === 'api') parts = parts.slice(1);
-  }
+  // Read path segments after "/api" straight from the URL.
+  const pathname = new URL(req.url, 'http://localhost').pathname;
+  let parts = pathname.split('/').filter(Boolean);
+  if (parts[0] === 'api') parts = parts.slice(1);
   const [key, id] = parts;
+
   const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
 
   try {
@@ -127,10 +125,12 @@ export default async function handler(req, res) {
       return res.status(201).json(created);
     }
     if (req.method === 'PATCH') {
+      if (!id) return res.status(400).json({ error: 'missing id' });
       const updated = await models[key]().update({ where: { id }, data: sanitize(key, body, { withId: false }) });
       return res.json(updated);
     }
     if (req.method === 'DELETE') {
+      if (!id) return res.status(400).json({ error: 'missing id' });
       await models[key]().delete({ where: { id } });
       return res.json({ ok: true });
     }
