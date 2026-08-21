@@ -4,11 +4,32 @@ import { fromNow } from '../lib/format';
 import { Badge, Empty } from '../components/UI';
 import { IconSend, IconMail, IconChat, IconTrash } from '../components/Icons';
 
+// Your (sender) details, injected via {{me}}, {{myphone}}, etc.
+const SENDER = { name: 'Shiraj', phone: '+91 8105369922', email: 'hello.aishitech@gmail.com', site: 'aishitech.vercel.app' };
+
+// Available merge variables shown under the message box.
+const VARS = '{{name}} {{firstName}} {{company}} {{service}} {{email}} {{phone}} {{notes}} {{me}} {{myphone}}';
+
+// Replace every {{variable}} with the matching lead / sender detail.
 function fillTemplate(text, lead) {
-  if (!lead) return text;
-  return text
-    .replaceAll('{{name}}', lead.name.split(' ')[0])
-    .replaceAll('{{company}}', lead.company);
+  const map = {
+    name: lead?.name || '',
+    firstname: (lead?.name || '').split(' ')[0],
+    company: lead?.company || '',
+    service: lead?.service || '',
+    email: lead?.email || '',
+    phone: lead?.phone || '',
+    notes: lead?.notes || '',
+    me: SENDER.name,
+    sender: SENDER.name,
+    myphone: SENDER.phone,
+    myemail: SENDER.email,
+    site: SENDER.site,
+  };
+  return (text || '').replace(/\{\{\s*(\w+)\s*\}\}/g, (m, k) => {
+    const v = map[k.toLowerCase()];
+    return v !== undefined ? v : m;
+  });
 }
 
 export default function Outreach() {
@@ -27,15 +48,12 @@ export default function Outreach() {
     setLeadId(id);
     const l = state.leads.find((x) => x.id === id);
     if (l) setTo(channel === 'email' ? l.email : l.phone);
-    if (l) {
-      setSubject((s) => fillTemplate(s, l));
-      setBody((b) => fillTemplate(b, l));
-    }
   };
 
+  // Load the template as-is (keep {{variables}} — they resolve in the preview & on send).
   const applyTemplate = (t) => {
-    setSubject(fillTemplate(t.subject, lead));
-    setBody(fillTemplate(t.body, lead));
+    setSubject(t.subject);
+    setBody(t.body);
   };
 
   const flash = (msg) => {
@@ -47,9 +65,9 @@ export default function Outreach() {
 
   const [sending, setSending] = useState(false);
 
-  const logAndClear = (status, note) => {
+  const logAndClear = (status, note, outSubject, outBody) => {
     addItem('outbox', {
-      channel, to, leadId: leadId || null, subject, body,
+      channel, to, leadId: leadId || null, subject: outSubject, body: outBody,
       status, createdAt: new Date().toISOString(), sentAt: status === 'sent' ? new Date().toISOString() : null,
     });
     if (status === 'sent' && lead && lead.status === 'new') {
@@ -64,14 +82,18 @@ export default function Outreach() {
   const commit = async (status) => {
     if (!to.trim() || !body.trim()) return flash('Add a recipient and a message first.');
 
-    // Draft — just save it.
-    if (status === 'draft') return logAndClear('draft', 'Saved as draft.');
+    // Fill {{variables}} from the selected lead + your details.
+    const outSubject = fillTemplate(subject, lead);
+    const outBody = fillTemplate(body, lead);
+
+    // Draft — save the template as typed (keep variables for later).
+    if (status === 'draft') return logAndClear('draft', 'Saved as draft.', subject, body);
 
     // WhatsApp — open a pre-filled wa.me chat (opens WhatsApp Web / app to send).
     if (channel === 'whatsapp') {
       const digits = to.replace(/[^0-9]/g, '');
-      window.open(`https://wa.me/${digits}?text=${encodeURIComponent(body)}`, '_blank', 'noopener');
-      return logAndClear('sent', `WhatsApp opened for ${to} — hit send there.`);
+      window.open(`https://wa.me/${digits}?text=${encodeURIComponent(outBody)}`, '_blank', 'noopener');
+      return logAndClear('sent', `WhatsApp opened for ${to} — hit send there.`, outSubject, outBody);
     }
 
     // Email — send for real via the API (Gmail SMTP).
@@ -80,11 +102,11 @@ export default function Outreach() {
       const res = await fetch('/api/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to, subject, body }),
+        body: JSON.stringify({ to, subject: outSubject, body: outBody }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) return flash(data.error || 'Send failed. Check email settings.');
-      logAndClear('sent', `Email sent to ${to}.`);
+      logAndClear('sent', `Email sent to ${to}.`, outSubject, outBody);
     } catch {
       flash('Send failed — network error.');
     } finally {
@@ -130,8 +152,11 @@ export default function Outreach() {
           )}
 
           <div className="field">
-            <label>Message · variables: <code style={{ color: 'var(--cyan)' }}>{'{{name}} {{company}}'}</code></label>
-            <textarea className="textarea" style={{ minHeight: 150 }} value={body} onChange={(e) => setBody(e.target.value)} placeholder="Write your message…" />
+            <label>Message</label>
+            <textarea className="textarea" style={{ minHeight: 150 }} value={body} onChange={(e) => setBody(e.target.value)} placeholder="Write your message… use {{name}}, {{company}}, {{service}}…" />
+            <div className="dim" style={{ fontSize: 11.5, marginTop: 4 }}>
+              Auto-filled from the lead: <code style={{ color: 'var(--cyan)' }}>{VARS}</code>
+            </div>
           </div>
 
           <div className="flex gap-8" style={{ justifyContent: 'flex-end' }}>
@@ -158,10 +183,10 @@ export default function Outreach() {
           </div>
 
           <div className="card" style={{ background: 'var(--bg-2)' }}>
-            <div className="card-head"><h3 style={{ fontSize: 13 }}>Preview</h3></div>
-            {channel === 'email' && <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 13.5 }}>{subject || <span className="dim">Subject…</span>}</div>}
+            <div className="card-head"><h3 style={{ fontSize: 13 }}>Preview</h3>{lead ? <span className="hint">for {lead.name}</span> : <span className="hint">pick a lead to fill</span>}</div>
+            {channel === 'email' && <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 13.5 }}>{fillTemplate(subject, lead) || <span className="dim">Subject…</span>}</div>}
             <div style={{ whiteSpace: 'pre-wrap', fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.7 }}>
-              {body || <span className="dim">Your message preview appears here.</span>}
+              {fillTemplate(body, lead) || <span className="dim">Your message preview appears here.</span>}
             </div>
           </div>
         </div>
