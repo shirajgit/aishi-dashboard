@@ -104,6 +104,33 @@ async function seedDatabase() {
   ]);
 }
 
+// Send a real email via the configured Gmail account (SMTP).
+// Requires env: GMAIL_APP_PASSWORD (16-char Google App Password). GMAIL_USER
+// defaults to the Aishi address.
+async function sendEmail(body, res) {
+  const { to, subject, body: text } = body;
+  if (!to || !text) return res.status(400).json({ error: 'missing "to" or "body"' });
+
+  const user = process.env.GMAIL_USER || 'hello.aishitech@gmail.com';
+  const pass = process.env.GMAIL_APP_PASSWORD;
+  if (!pass) return res.status(500).json({ error: 'Email not configured — set GMAIL_APP_PASSWORD in Vercel env.' });
+
+  try {
+    const nodemailer = (await import('nodemailer')).default;
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: { user, pass },
+    });
+    await transporter.sendMail({ from: `Aishi Tech <${user}>`, to, subject: subject || '(no subject)', text });
+    return res.json({ ok: true });
+  } catch (e) {
+    console.error('sendEmail failed:', e);
+    return res.status(500).json({ error: e.message });
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE,OPTIONS');
@@ -123,6 +150,7 @@ export default async function handler(req, res) {
     if (req.method === 'GET' && key === 'state') return res.json(await readState());
     if (req.method === 'POST' && key === 'reset') { await seedDatabase(); return res.json({ ok: true }); }
     if (req.method === 'POST' && key === 'clear') { await clearDatabase(); return res.json({ ok: true }); }
+    if (req.method === 'POST' && key === 'send') return sendEmail(body, res);
 
     if (!models[key]) return res.status(404).json({ error: 'unknown collection' });
 

@@ -45,20 +45,51 @@ export default function Outreach() {
 
   const reset = () => { setTo(''); setSubject(''); setBody(''); setLeadId(''); };
 
-  const commit = (status) => {
-    if (!to.trim() || !body.trim()) return flash('Add a recipient and a message first.');
+  const [sending, setSending] = useState(false);
+
+  const logAndClear = (status, note) => {
     addItem('outbox', {
       channel, to, leadId: leadId || null, subject, body,
       status, createdAt: new Date().toISOString(), sentAt: status === 'sent' ? new Date().toISOString() : null,
     });
-    // Advance a fresh lead to "contacted" when we actually send.
     if (status === 'sent' && lead && lead.status === 'new') {
       updateItem('leads', lead.id, { status: 'contacted', lastContact: new Date().toISOString() });
     } else if (status === 'sent' && lead) {
       updateItem('leads', lead.id, { lastContact: new Date().toISOString() });
     }
-    flash(status === 'sent' ? `Sent to ${to} — logged in Outbox.` : 'Saved as draft.');
+    flash(note);
     reset();
+  };
+
+  const commit = async (status) => {
+    if (!to.trim() || !body.trim()) return flash('Add a recipient and a message first.');
+
+    // Draft — just save it.
+    if (status === 'draft') return logAndClear('draft', 'Saved as draft.');
+
+    // WhatsApp — open a pre-filled wa.me chat (opens WhatsApp Web / app to send).
+    if (channel === 'whatsapp') {
+      const digits = to.replace(/[^0-9]/g, '');
+      window.open(`https://wa.me/${digits}?text=${encodeURIComponent(body)}`, '_blank', 'noopener');
+      return logAndClear('sent', `WhatsApp opened for ${to} — hit send there.`);
+    }
+
+    // Email — send for real via the API (Gmail SMTP).
+    setSending(true);
+    try {
+      const res = await fetch('/api/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to, subject, body }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) return flash(data.error || 'Send failed. Check email settings.');
+      logAndClear('sent', `Email sent to ${to}.`);
+    } catch {
+      flash('Send failed — network error.');
+    } finally {
+      setSending(false);
+    }
   };
 
   const outbox = [...state.outbox].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -104,8 +135,10 @@ export default function Outreach() {
           </div>
 
           <div className="flex gap-8" style={{ justifyContent: 'flex-end' }}>
-            <button className="btn ghost" onClick={() => commit('draft')}>Save draft</button>
-            <button className="btn primary" onClick={() => commit('sent')}><IconSend size={15} /> Send now</button>
+            <button className="btn ghost" onClick={() => commit('draft')} disabled={sending}>Save draft</button>
+            <button className="btn primary" onClick={() => commit('sent')} disabled={sending}>
+              <IconSend size={15} /> {sending ? 'Sending…' : channel === 'whatsapp' ? 'Open WhatsApp' : 'Send email'}
+            </button>
           </div>
         </div>
 
