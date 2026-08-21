@@ -1,19 +1,52 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDashboard, updateItem } from '../store/db';
+import { useDashboard, updateItem, resetData } from '../store/db';
 import { kpis, leadsByStage, activityFeed, STAGE_COLORS } from '../lib/metrics';
 import { compactMoney, money, num, fromNow, dateShort } from '../lib/format';
 import { AreaChart, BarList, Donut } from '../components/Charts';
 import { Stat, Badge, Avatar } from '../components/UI';
 import {
-  IconWallet, IconUsers, IconTarget, IconTrophy, IconMail, IconChat, IconCheck, IconClock, IconArrowOut,
+  IconWallet, IconUsers, IconTarget, IconTrophy, IconMail, IconChat, IconCheck, IconClock, IconArrowOut, IconPlus, IconRefresh,
 } from '../components/Icons';
 
 const feedIcon = { email: <IconMail size={15} />, message: <IconChat size={15} />, win: <IconTrophy size={15} />, task: <IconCheck size={15} /> };
+
+function SeedBanner() {
+  const nav = useNavigate();
+  const [seeding, setSeeding] = useState(false);
+
+  const seed = async () => {
+    setSeeding(true);
+    try {
+      await resetData();
+    } finally {
+      setSeeding(false);
+    }
+  };
+
+  return (
+    <div className="card" style={{ background: 'linear-gradient(120deg, rgba(56,217,245,0.08), rgba(123,140,222,0.06))', borderColor: 'rgba(56,217,245,0.25)' }}>
+      <div className="flex between gap-16" style={{ flexWrap: 'wrap' }}>
+        <div>
+          <h3 style={{ marginBottom: 6 }}>Your workspace is empty</h3>
+          <div className="muted" style={{ fontSize: 13 }}>Load a sample dataset to explore the dashboard, or start adding your own real leads and customers.</div>
+        </div>
+        <div className="flex gap-8">
+          <button className="btn" onClick={() => nav('/leads')}><IconPlus size={16} /> Add a lead</button>
+          <button className="btn primary" onClick={seed} disabled={seeding}>
+            <IconRefresh size={16} /> {seeding ? 'Loading…' : 'Load demo data'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Overview() {
   const state = useDashboard();
   const nav = useNavigate();
   const k = kpis(state);
+  const isEmpty = state.leads.length === 0 && state.customers.length === 0 && state.subscriptions.length === 0;
   const stages = leadsByStage(state.leads);
   const feed = activityFeed(state);
 
@@ -35,6 +68,7 @@ export default function Overview() {
 
   return (
     <>
+      {isEmpty && <div className="mb-16"><SeedBanner /></div>}
       <div className="grid cols-4">
         <Stat icon={<IconWallet size={19} />} label="Monthly recurring revenue" value={compactMoney(k.mrr)} delta={mrrGrowth != null ? `${mrrGrowth}%` : null} deltaDir={mrrGrowth >= 0 ? 'up' : 'down'} foot="vs last month" />
         <Stat icon={<IconUsers size={19} />} label="Active customers" value={num(k.activeCustomers)} foot={`${k.churnRate}% churn rate`} />
