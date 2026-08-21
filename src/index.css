@@ -252,6 +252,13 @@ input, textarea, select { font-family: inherit; }
 .spinner { width: 34px; height: 34px; border-radius: 50%; border: 3px solid rgba(255, 255, 255, 0.1); border-top-color: var(--cyan); margin: 0 auto; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ---- kanban board ---- */
+.board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: start; }
+.board-col { background: var(--bg-2); border: 1px solid var(--border); border-radius: 14px; padding: 14px; min-height: 140px; }
+.board-col-head { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px 14px; }
+.board-empty { text-align: center; color: var(--text-dim); font-size: 12.5px; padding: 24px 0; border: 1px dashed var(--border); border-radius: 12px; }
+@media (max-width: 900px) { .board { grid-template-columns: 1fr; } }
+
 @media (max-width: 900px) {
   .app { grid-template-columns: 1fr; }
   .sidebar { display: none; }

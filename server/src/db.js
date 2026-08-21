@@ -11,6 +11,7 @@ export const models = {
   outbox: () => prisma.outbox,
   notes: () => prisma.note,
   actions: () => prisma.action,
+  projects: () => prisma.project,
 };
 
 // Whitelisted writable fields per collection (id included for create).
@@ -22,10 +23,11 @@ export const FIELDS = {
   outbox: ['id', 'channel', 'to', 'leadId', 'subject', 'body', 'status', 'createdAt', 'sentAt'],
   notes: ['id', 'title', 'body', 'tags', 'pinned', 'createdAt'],
   actions: ['id', 'title', 'due', 'priority', 'done', 'relatedType', 'relatedId'],
+  projects: ['id', 'title', 'client', 'service', 'status', 'value', 'deadline', 'notes', 'createdAt'],
 };
 
 const INT_FIELDS = new Set(['value', 'mrr', 'amount', 'health']);
-const DATE_FIELDS = new Set(['createdAt', 'lastContact', 'since', 'startedAt', 'renewsAt', 'sentAt', 'due']);
+const DATE_FIELDS = new Set(['createdAt', 'lastContact', 'since', 'startedAt', 'renewsAt', 'sentAt', 'due', 'deadline']);
 
 /** Keep only allowed fields and coerce types so bad input can't crash Prisma. */
 export function sanitize(key, body, { withId }) {

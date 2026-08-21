@@ -91,3 +91,15 @@ model RevenuePoint {
   newLeads Int
   won      Int
 }
+
+model Project {
+  id        String    @id @default(cuid())
+  title     String
+  client    String    @default("")
+  service   String    @default("Website")
+  status    String    @default("not-started")
+  value     Int       @default(0)
+  deadline  DateTime?
+  notes     String    @default("")
+  createdAt DateTime  @default(now())
+}

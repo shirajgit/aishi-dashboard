@@ -4,6 +4,7 @@ import Overview from './pages/Overview';
 import Leads from './pages/Leads';
 import Customers from './pages/Customers';
 import Subscriptions from './pages/Subscriptions';
+import Projects from './pages/Projects';
 import Outreach from './pages/Outreach';
 import Notes from './pages/Notes';
 import Actions from './pages/Actions';
@@ -17,6 +18,7 @@ export default function App() {
         <Route path="leads" element={<Leads />} />
         <Route path="customers" element={<Customers />} />
         <Route path="subscriptions" element={<Subscriptions />} />
+        <Route path="projects" element={<Projects />} />
         <Route path="outreach" element={<Outreach />} />
         <Route path="notes" element={<Notes />} />
         <Route path="actions" element={<Actions />} />

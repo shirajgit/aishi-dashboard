@@ -20,6 +20,7 @@ const models = {
   outbox: () => prisma.outbox,
   notes: () => prisma.note,
   actions: () => prisma.action,
+  projects: () => prisma.project,
 };
 
 const FIELDS = {
@@ -30,10 +31,11 @@ const FIELDS = {
   outbox: ['id', 'channel', 'to', 'leadId', 'subject', 'body', 'status', 'createdAt', 'sentAt'],
   notes: ['id', 'title', 'body', 'tags', 'pinned', 'createdAt'],
   actions: ['id', 'title', 'due', 'priority', 'done', 'relatedType', 'relatedId'],
+  projects: ['id', 'title', 'client', 'service', 'status', 'value', 'deadline', 'notes', 'createdAt'],
 };
 
 const INT_FIELDS = new Set(['value', 'mrr', 'amount', 'health']);
-const DATE_FIELDS = new Set(['createdAt', 'lastContact', 'since', 'startedAt', 'renewsAt', 'sentAt', 'due']);
+const DATE_FIELDS = new Set(['createdAt', 'lastContact', 'since', 'startedAt', 'renewsAt', 'sentAt', 'due', 'deadline']);
 
 function sanitize(key, body, { withId }) {
   const allowed = FIELDS[key].filter((f) => (withId ? true : f !== 'id'));
@@ -51,7 +53,7 @@ function sanitize(key, body, { withId }) {
 }
 
 async function readState() {
-  const [leads, customers, subscriptions, templates, outbox, notes, actions, revenue] = await Promise.all([
+  const [leads, customers, subscriptions, templates, outbox, notes, actions, revenue, projects] = await Promise.all([
     prisma.lead.findMany({ orderBy: { createdAt: 'desc' } }),
     prisma.customer.findMany({ orderBy: { since: 'desc' } }),
     prisma.subscription.findMany(),
@@ -60,8 +62,9 @@ async function readState() {
     prisma.note.findMany({ orderBy: { createdAt: 'desc' } }),
     prisma.action.findMany({ orderBy: { due: 'asc' } }),
     prisma.revenuePoint.findMany({ orderBy: { idx: 'asc' } }),
+    prisma.project.findMany({ orderBy: { createdAt: 'desc' } }),
   ]);
-  return { leads, customers, subscriptions, templates, outbox, notes, actions, revenue };
+  return { leads, customers, subscriptions, templates, outbox, notes, actions, revenue, projects };
 }
 
 async function clearDatabase() {
@@ -73,6 +76,7 @@ async function clearDatabase() {
     prisma.note.deleteMany(),
     prisma.action.deleteMany(),
     prisma.revenuePoint.deleteMany(),
+    prisma.project.deleteMany(),
   ]);
 }
 
@@ -87,6 +91,7 @@ async function seedDatabase() {
     prisma.note.deleteMany(),
     prisma.action.deleteMany(),
     prisma.revenuePoint.deleteMany(),
+    prisma.project.deleteMany(),
     prisma.lead.createMany({ data: seed.leads }),
     prisma.customer.createMany({ data: seed.customers }),
     prisma.subscription.createMany({ data: seed.subscriptions }),
@@ -95,6 +100,7 @@ async function seedDatabase() {
     prisma.note.createMany({ data: seed.notes }),
     prisma.action.createMany({ data: seed.actions }),
     prisma.revenuePoint.createMany({ data: seed.revenue }),
+    prisma.project.createMany({ data: seed.projects }),
   ]);
 }
 

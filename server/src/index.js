@@ -17,7 +17,7 @@ app.get('/api/health', (_req, res) => res.json({ ok: true }));
 // Full snapshot the front-end loads on boot.
 app.get('/api/state', async (_req, res, next) => {
   try {
-    const [leads, customers, subscriptions, templates, outbox, notes, actions, revenue] = await Promise.all([
+    const [leads, customers, subscriptions, templates, outbox, notes, actions, revenue, projects] = await Promise.all([
       prisma.lead.findMany({ orderBy: { createdAt: 'desc' } }),
       prisma.customer.findMany({ orderBy: { since: 'desc' } }),
       prisma.subscription.findMany(),
@@ -26,8 +26,9 @@ app.get('/api/state', async (_req, res, next) => {
       prisma.note.findMany({ orderBy: { createdAt: 'desc' } }),
       prisma.action.findMany({ orderBy: { due: 'asc' } }),
       prisma.revenuePoint.findMany({ orderBy: { idx: 'asc' } }),
+      prisma.project.findMany({ orderBy: { createdAt: 'desc' } }),
     ]);
-    res.json({ leads, customers, subscriptions, templates, outbox, notes, actions, revenue });
+    res.json({ leads, customers, subscriptions, templates, outbox, notes, actions, revenue, projects });
   } catch (e) {
     next(e);
   }
@@ -106,6 +107,7 @@ export async function clearDatabase() {
     prisma.note.deleteMany(),
     prisma.action.deleteMany(),
     prisma.revenuePoint.deleteMany(),
+    prisma.project.deleteMany(),
   ]);
 }
 
@@ -120,6 +122,7 @@ export async function seedDatabase() {
     prisma.note.deleteMany(),
     prisma.action.deleteMany(),
     prisma.revenuePoint.deleteMany(),
+    prisma.project.deleteMany(),
     prisma.lead.createMany({ data: seed.leads }),
     prisma.customer.createMany({ data: seed.customers }),
     prisma.subscription.createMany({ data: seed.subscriptions }),
@@ -128,6 +131,7 @@ export async function seedDatabase() {
     prisma.note.createMany({ data: seed.notes }),
     prisma.action.createMany({ data: seed.actions }),
     prisma.revenuePoint.createMany({ data: seed.revenue }),
+    prisma.project.createMany({ data: seed.projects }),
   ]);
 }
 

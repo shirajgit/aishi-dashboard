@@ -79,5 +79,12 @@ export function buildSeed() {
     });
   }
 
-  return { leads, customers, subscriptions, templates, outbox, notes, actions, revenue };
+  const projects = [
+    { id: 'pj_1', title: 'BrightKart storefront revamp', client: 'BrightKart', service: 'E-commerce', status: 'pending', value: 180000, deadline: at(20), notes: 'Custom storefront + admin dashboard.', createdAt: at(-6) },
+    { id: 'pj_2', title: 'Rivet HR employee portal', client: 'Rivet HR', service: 'Web App', status: 'completed', value: 540000, deadline: at(-4), notes: 'Delivered and live.', createdAt: at(-30) },
+    { id: 'pj_3', title: 'ClinicOne booking app', client: 'ClinicOne', service: 'Mobile App', status: 'not-started', value: 260000, deadline: at(45), notes: 'Kickoff pending signed contract.', createdAt: at(-2) },
+    { id: 'pj_4', title: 'EduNest marketing site', client: 'EduNest', service: 'Website', status: 'pending', value: 210000, deadline: at(14), notes: 'Design approved, in build.', createdAt: at(-5) },
+  ];
+
+  return { leads, customers, subscriptions, templates, outbox, notes, actions, revenue, projects };
 }

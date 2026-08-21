@@ -43,3 +43,4 @@ export const IconPhone = (p) => (<S {...p}><path d="M22 16.92v3a2 2 0 0 1-2.18 2
 export const IconTarget = (p) => (<S {...p}><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></S>);
 export const IconWallet = (p) => (<S {...p}><path d="M20 12V8H6a2 2 0 0 1-2-2 2 2 0 0 1 2-2h12v4" /><path d="M4 6v12a2 2 0 0 0 2 2h14v-4" /><path d="M18 12a2 2 0 0 0 0 4h4v-4z" /></S>);
 export const IconHeart = (p) => (<S {...p}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" /></S>);
+export const IconBoard = (p) => (<S {...p}><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M9 3v18M15 3v18" /></S>);

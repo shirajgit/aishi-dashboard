@@ -2,7 +2,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useDashboard, useLoaded, useError } from '../store/db';
 import { OPEN_STAGES } from '../lib/metrics';
 import {
-  IconGrid, IconLeads, IconUsers, IconCard, IconSend, IconNote, IconCheck, IconSettings, IconSearch,
+  IconGrid, IconLeads, IconUsers, IconCard, IconSend, IconNote, IconCheck, IconSettings, IconSearch, IconBoard,
 } from './Icons';
 
 const PAGES = {
@@ -10,6 +10,7 @@ const PAGES = {
   '/leads': { title: 'Leads', sub: 'Your sales pipeline' },
   '/customers': { title: 'Customers', sub: 'Accounts and health' },
   '/subscriptions': { title: 'Subscriptions', sub: 'Recurring revenue' },
+  '/projects': { title: 'Projects', sub: 'Client project onboarding' },
   '/outreach': { title: 'Cold Outreach', sub: 'Email & message sequences' },
   '/notes': { title: 'Notes', sub: 'Team knowledge base' },
   '/actions': { title: 'Next Actions', sub: 'What needs doing' },
@@ -21,12 +22,14 @@ function Sidebar() {
   const openLeads = state.leads.filter((l) => OPEN_STAGES.includes(l.status)).length;
   const dueActions = state.actions.filter((a) => !a.done).length;
   const drafts = state.outbox.filter((o) => o.status === 'draft').length;
+  const activeProjects = (state.projects || []).filter((p) => p.status !== 'completed').length;
 
   const items = [
     { to: '/', icon: <IconGrid />, label: 'Overview', end: true },
     { to: '/leads', icon: <IconLeads />, label: 'Leads', badge: openLeads },
     { to: '/customers', icon: <IconUsers />, label: 'Customers' },
     { to: '/subscriptions', icon: <IconCard />, label: 'Subscriptions' },
+    { to: '/projects', icon: <IconBoard />, label: 'Projects', badge: activeProjects || undefined },
     { to: '/outreach', icon: <IconSend />, label: 'Outreach', badge: drafts || undefined },
     { to: '/notes', icon: <IconNote />, label: 'Notes' },
     { to: '/actions', icon: <IconCheck />, label: 'Next Actions', badge: dueActions },

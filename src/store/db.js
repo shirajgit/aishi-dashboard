@@ -4,7 +4,7 @@
 import { useSyncExternalStore } from 'react';
 
 const BASE = import.meta.env.VITE_API_URL || '';
-const EMPTY = { leads: [], customers: [], subscriptions: [], templates: [], outbox: [], notes: [], actions: [], revenue: [] };
+const EMPTY = { leads: [], customers: [], subscriptions: [], templates: [], outbox: [], notes: [], actions: [], revenue: [], projects: [] };
 
 let state = EMPTY;
 let loaded = false;
