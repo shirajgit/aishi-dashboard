@@ -34,16 +34,16 @@ export function buildSeed() {
   ];
 
   const templates = [
-    { id: 'tpl_1', name: 'Cold intro — SaaS', channel: 'email', subject: 'Quick idea for {{company}}', body: 'Hi {{name}},\n\nI run delivery at Aishi Technologies — we build web apps, AI automations and internal tools. I had a specific idea for {{company}} that could cut manual work on your side.\n\nWorth a 15-min call this week?\n\n— Shira, Aishi Technologies' },
-    { id: 'tpl_2', name: 'Follow-up #1', channel: 'email', subject: 'Re: {{company}} — following up', body: 'Hi {{name}},\n\nCircling back on my note. Happy to send a short Loom showing what we’d build for {{company}} if that’s easier than a call.\n\nWhich works better?\n\n— Shira' },
-    { id: 'tpl_3', name: 'WhatsApp intro', channel: 'whatsapp', subject: '', body: 'Hi {{name}}, this is Shira from Aishi Technologies. We build custom web/mobile apps & AI tools. Saw {{company}} and thought there could be a strong fit — open to a quick chat?' },
-    { id: 'tpl_4', name: 'Proposal nudge', channel: 'email', subject: 'Your proposal is ready, {{name}}', body: 'Hi {{name}},\n\nThe proposal for {{company}} is ready. It covers scope, timeline and a fixed price. Want me to walk you through it on a call?\n\n— Shira, Aishi Technologies' },
+    { id: 'tpl_1', name: 'Cold intro — SaaS', channel: 'email', subject: 'Quick idea for {{company}}', body: 'Hi {{name}},\n\nI run delivery at Aishi Technologies — we build web apps, AI automations and internal tools. I had a specific idea for {{company}} that could cut manual work on your side.\n\nWorth a 15-min call this week?\n\n— Shiraj, Aishi Technologies' },
+    { id: 'tpl_2', name: 'Follow-up #1', channel: 'email', subject: 'Re: {{company}} — following up', body: 'Hi {{name}},\n\nCircling back on my note. Happy to send a short Loom showing what we’d build for {{company}} if that’s easier than a call.\n\nWhich works better?\n\n— Shiraj' },
+    { id: 'tpl_3', name: 'WhatsApp intro', channel: 'whatsapp', subject: '', body: 'Hi {{name}}, this is Shiraj from Aishi Technologies. We build custom web/mobile apps & AI tools. Saw {{company}} and thought there could be a strong fit — open to a quick chat?' },
+    { id: 'tpl_4', name: 'Proposal nudge', channel: 'email', subject: 'Your proposal is ready, {{name}}', body: 'Hi {{name}},\n\nThe proposal for {{company}} is ready. It covers scope, timeline and a fixed price. Want me to walk you through it on a call?\n\n— Shiraj, Aishi Technologies' },
   ];
 
   const outbox = [
     { id: 'ob_1', channel: 'email', to: 'deepak@clinicone.health', leadId: 'ld_3', subject: 'Quick idea for ClinicOne', body: 'Hi Deepak, ...', status: 'sent', createdAt: at(-4), sentAt: at(-4) },
     { id: 'ob_2', channel: 'email', to: 'jordan@fleetiq.app', leadId: 'ld_7', subject: 'Quick idea for FleetIQ', body: 'Hi Jordan, ...', status: 'draft', createdAt: at(0), sentAt: null },
-    { id: 'ob_3', channel: 'whatsapp', to: '+65 8123 4567', leadId: 'ld_4', subject: '', body: 'Hi Mei, this is Shira from Aishi ...', status: 'sent', createdAt: at(-1), sentAt: at(-1) },
+    { id: 'ob_3', channel: 'whatsapp', to: '+65 8123 4567', leadId: 'ld_4', subject: '', body: 'Hi Mei, this is Shiraj from Aishi ...', status: 'sent', createdAt: at(-1), sentAt: at(-1) },
     { id: 'ob_4', channel: 'email', to: 'sara@northloop.io', leadId: 'ld_2', subject: 'Your proposal is ready, Sara', body: 'Hi Sara, ...', status: 'replied', createdAt: at(-2), sentAt: at(-2) },
   ];
 
