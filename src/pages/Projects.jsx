@@ -16,10 +16,18 @@ const ORDER = COLUMNS.map((c) => c.key);
 
 const BLANK = { title: '', client: '', service: 'Website', status: 'not-started', value: 0, deadline: '', notes: '' };
 
-function ProjectForm({ initial, onSave, onClose }) {
+function ProjectForm({ initial, clients, onSave, onClose }) {
   const [form, setForm] = useState({ ...initial, deadline: initial.deadline ? initial.deadline.slice(0, 10) : '' });
+  // "Other" = client not in the existing customer/lead list (type it manually).
+  const [custom, setCustom] = useState(!!initial.client && !clients.includes(initial.client));
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
   const valid = form.title.trim() && form.client.trim();
+
+  const onPickClient = (e) => {
+    const v = e.target.value;
+    if (v === '__other__') { setCustom(true); setForm({ ...form, client: '' }); }
+    else { setCustom(false); setForm({ ...form, client: v }); }
+  };
 
   return (
     <Modal
@@ -43,15 +51,23 @@ function ProjectForm({ initial, onSave, onClose }) {
       }
     >
       <div className="field"><label>Project title *</label><input className="input" value={form.title} onChange={set('title')} placeholder="e.g. Custom website for Acme" /></div>
+      <div className="field">
+        <label>Client *</label>
+        <select className="input" value={custom ? '__other__' : form.client} onChange={onPickClient}>
+          <option value="">— select client —</option>
+          {clients.map((c) => <option key={c} value={c}>{c}</option>)}
+          <option value="__other__">+ Other (type manually)</option>
+        </select>
+        {custom && <input className="input" style={{ marginTop: 8 }} value={form.client} onChange={set('client')} placeholder="Client / company name" autoFocus />}
+      </div>
       <div className="row">
-        <div className="field"><label>Client *</label><input className="input" value={form.client} onChange={set('client')} placeholder="Client / company" /></div>
         <div className="field"><label>Service</label><select className="input" value={form.service} onChange={set('service')}>{SERVICES.map((s) => <option key={s}>{s}</option>)}</select></div>
+        <div className="field"><label>Status</label><select className="input" value={form.status} onChange={set('status')}>{COLUMNS.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}</select></div>
       </div>
       <div className="row">
-        <div className="field"><label>Status</label><select className="input" value={form.status} onChange={set('status')}>{COLUMNS.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}</select></div>
         <div className="field"><label>Deal value (₹)</label><input className="input mono" type="number" value={form.value} onChange={set('value')} /></div>
+        <div className="field"><label>Deadline</label><input className="input" type="date" value={form.deadline} onChange={set('deadline')} /></div>
       </div>
-      <div className="field"><label>Deadline</label><input className="input" type="date" value={form.deadline} onChange={set('deadline')} /></div>
       <div className="field"><label>Notes</label><textarea className="textarea" value={form.notes} onChange={set('notes')} placeholder="Scope, milestones, blockers…" /></div>
     </Modal>
   );
@@ -100,6 +116,14 @@ export default function Projects() {
 
   const projects = state.projects || [];
 
+  // Existing clients to pick from: unique company (or name) across customers + leads.
+  const clients = Array.from(
+    new Set([
+      ...state.customers.map((c) => c.company || c.name),
+      ...state.leads.map((l) => l.company || l.name),
+    ].filter(Boolean)),
+  ).sort();
+
   const save = (data) => {
     if (data.id) updateItem('projects', data.id, data);
     else addItem('projects', { ...data, createdAt: new Date().toISOString() });
@@ -147,7 +171,7 @@ export default function Projects() {
         </div>
       )}
 
-      {editing && <ProjectForm initial={editing} onSave={save} onClose={() => setEditing(null)} />}
+      {editing && <ProjectForm initial={editing} clients={clients} onSave={save} onClose={() => setEditing(null)} />}
     </>
   );
 }
