@@ -17,6 +17,7 @@ model Lead {
   status      String    @default("new")
   value       Int       @default(0)
   service     String    @default("Website")
+  notes       String    @default("")
   createdAt   DateTime  @default(now())
   lastContact DateTime?
 }

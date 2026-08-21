@@ -6,7 +6,7 @@ import { money, compactMoney, dateShort, fromNow } from '../lib/format';
 import { Badge, Avatar, Modal, Drawer, Empty } from '../components/UI';
 import { IconPlus, IconEdit, IconTrash, IconSend, IconPhone, IconMail } from '../components/Icons';
 
-const BLANK = { name: '', company: '', email: '', phone: '', source: 'Website', status: 'new', value: 0, service: 'Website' };
+const BLANK = { name: '', company: '', email: '', phone: '', source: 'Website', status: 'new', value: 0, service: 'Website', notes: '' };
 const SOURCES = ['Website', 'Referral', 'Cold email', 'LinkedIn', 'Event', 'Other'];
 const SERVICES = ['Website', 'Web App', 'Mobile App', 'E-commerce', 'AI / Automation', 'IoT', 'Digital Marketing', 'Other'];
 
@@ -44,6 +44,7 @@ function LeadForm({ initial, onSave, onClose }) {
         <div className="field"><label>Deal value (₹)</label><input className="input mono" type="number" value={form.value} onChange={set('value')} /></div>
         <div className="field"><label>Service</label><select className="input" value={form.service} onChange={set('service')}>{SERVICES.map((s) => <option key={s}>{s}</option>)}</select></div>
       </div>
+      <div className="field"><label>Notes / about</label><textarea className="textarea" value={form.notes} onChange={set('notes')} placeholder="What do they need, budget, decision-maker, context…" /></div>
     </Modal>
   );
 }
@@ -90,6 +91,13 @@ function LeadDrawer({ lead, onClose }) {
         <div className="flex gap-8" style={{ marginBottom: 8 }}><IconMail size={15} /> <span className="muted">{lead.email || '—'}</span></div>
         <div className="flex gap-8"><IconPhone size={15} /> <span className="muted">{lead.phone || '—'}</span></div>
       </div>
+
+      {lead.notes && (
+        <>
+          <div className="section-title">Notes / about</div>
+          <div className="card" style={{ padding: 16, marginBottom: 20, whiteSpace: 'pre-wrap', fontSize: 13, lineHeight: 1.6, color: 'var(--text-muted)' }}>{lead.notes}</div>
+        </>
+      )}
 
       <div className="section-title">Timeline</div>
       <div className="muted" style={{ fontSize: 13, lineHeight: 2 }}>
