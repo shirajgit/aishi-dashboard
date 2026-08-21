@@ -1,0 +1,97 @@
+// Root schema used by the Vercel serverless API (api/[...path].js).
+// Mirrors server/prisma/schema.prisma. binaryTargets includes the Vercel
+// (AWS Lambda) engine so the client works in production.
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Lead {
+  id          String    @id @default(cuid())
+  name        String
+  company     String
+  email       String    @default("")
+  phone       String    @default("")
+  source      String    @default("Website")
+  status      String    @default("new")
+  value       Int       @default(0)
+  owner       String    @default("Shira")
+  createdAt   DateTime  @default(now())
+  lastContact DateTime?
+}
+
+model Customer {
+  id      String   @id @default(cuid())
+  name    String
+  company String
+  email   String   @default("")
+  plan    String   @default("Starter")
+  mrr     Int      @default(0)
+  status  String   @default("trial")
+  since   DateTime @default(now())
+  health  Int      @default(70)
+}
+
+model Subscription {
+  id         String    @id @default(cuid())
+  customerId String
+  plan       String
+  amount     Int       @default(0)
+  interval   String    @default("monthly")
+  status     String    @default("active")
+  startedAt  DateTime  @default(now())
+  renewsAt   DateTime?
+}
+
+model Template {
+  id      String @id @default(cuid())
+  name    String
+  channel String @default("email")
+  subject String @default("")
+  body    String @default("")
+}
+
+model Outbox {
+  id        String    @id @default(cuid())
+  channel   String    @default("email")
+  to        String    @map("recipient")
+  leadId    String?
+  subject   String    @default("")
+  body      String    @default("")
+  status    String    @default("draft")
+  createdAt DateTime  @default(now())
+  sentAt    DateTime?
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  title     String
+  body      String   @default("")
+  tags      String[] @default([])
+  pinned    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Action {
+  id          String   @id @default(cuid())
+  title       String
+  due         DateTime @default(now())
+  priority    String   @default("medium")
+  done        Boolean  @default(false)
+  relatedType String?
+  relatedId   String?
+}
+
+model RevenuePoint {
+  id       String @id @default(cuid())
+  idx      Int
+  month    String
+  mrr      Int
+  newLeads Int
+  won      Int
+}
