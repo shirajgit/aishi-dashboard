@@ -103,7 +103,14 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(204).end();
 
-  const parts = [].concat(req.query.path || []); // catch-all segments after /api
+  // Resolve the path segments after "/api". Prefer Vercel's catch-all param,
+  // but fall back to parsing req.url so this works no matter how it's routed.
+  let parts = req.query && req.query.path ? [].concat(req.query.path) : [];
+  if (parts.length === 0) {
+    const pathname = new URL(req.url, 'http://localhost').pathname;
+    parts = pathname.split('/').filter(Boolean);
+    if (parts[0] === 'api') parts = parts.slice(1);
+  }
   const [key, id] = parts;
   const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
 
